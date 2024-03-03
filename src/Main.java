@@ -45,6 +45,13 @@ public class Main {
 
         int data = sc.nextInt();
 
+
+        System.out.println("percobaan ke?");
+
+
+
+        int ver = sc.nextInt();
+
         int penalty=1000;
 
         int bestPenalty=penalty;
@@ -184,7 +191,7 @@ public class Main {
 
         Collections.sort(cohort);
 
-        printHasil();
+        printHasil(data, penalty, runtime, ver);
 
 
         //System.out.println(student.size());
@@ -1008,8 +1015,11 @@ public class Main {
         return false;
     }
 
-    public static void printHasil() throws IOException {
-        myWriter = new FileWriter(path + "/Hasil/" + 2+".csv");
+    public static void printHasil(int data, int pen, double dur, int ver) throws IOException {
+
+
+        myWriter = new FileWriter(path + "/Hasil/" + data+"-"+ver+".csv");
+        Main.myWriter.write("Penalty:"+pen+", duration:"+dur+"\n\n");
         for (int i = 0; i < cohort.size(); i++) {
             cohort.get(i).printHasil();
         }
