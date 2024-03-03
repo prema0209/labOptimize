@@ -1,3 +1,4 @@
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -65,6 +66,9 @@ public class Cohort implements Comparable<Cohort>{
 
     public void setBest(){
         timeSlotBest=timeSlot;
+
+
+
         studentsBest=new ArrayList<>();
         teachingAssitantsBest=new ArrayList<>();
 
@@ -79,6 +83,7 @@ public class Cohort implements Comparable<Cohort>{
 
     public void useBest(){
         timeSlot=timeSlotBest;
+        timeSlot.cohort=this;
 
         students=new ArrayList<>();
         teachingAssitants=new ArrayList<>();
@@ -153,12 +158,15 @@ public class Cohort implements Comparable<Cohort>{
         }
     }
 
-    public void printHasil(){
+    public void printHasil() throws IOException {
 
-        System.out.println("\n");
+        Main.myWriter.write("\n");
+        //System.out.println("\n");
 
-        System.out.println("Cohort "+(id+1));
-        System.out.println("room:"+timeSlot.room.id+" "+timeSlot.room.nama);
+        Main.myWriter.write("Cohort "+(id+1)+"\n");
+        Main.myWriter.write("room:"+timeSlot.room.id+" "+timeSlot.room.nama+"\n");
+//        System.out.println("Cohort "+(id+1));
+//        System.out.println("room:"+timeSlot.room.id+" "+timeSlot.room.nama);
 
         String hari="";
 
@@ -180,23 +188,32 @@ public class Cohort implements Comparable<Cohort>{
                 break;
         }
 
-        System.out.println("Waktu:"+hari+" sesi "+(timeSlot.timeSlotId%4+1));
+        Main.myWriter.write("Waktu:"+hari+" sesi "+(timeSlot.timeSlotId%4+1)+"\n\n");
+       // System.out.println("Waktu:"+hari+" sesi "+(timeSlot.timeSlotId%4+1));
 
 
-        System.out.println("\n");
-        System.out.println("TeachingAssistant:");
+        //System.out.println("\n");
+
+        Main.myWriter.write("TeachingAssistant:"+"\n");
+        //System.out.println("TeachingAssistant:");
         for(int i=0;i<teachingAssitants.size();i++){
-            System.out.println(teachingAssitants.get(i).nama);
+            //System.out.println(teachingAssitants.get(i).nama);
+            Main.myWriter.write(teachingAssitants.get(i).nama+"\n");
         }
-        System.out.println("\n");
-        System.out.println("Number of Student:"+students.size()+"/"+ timeSlot.room.kapasitas);
-        System.out.println("Student:");
-        System.out.println("NRP;Kelas;Nama");
+        Main.myWriter.write("\n");
+        Main.myWriter.write("Number of Student:"+students.size()+"/"+ timeSlot.room.kapasitas+"\n");
+        Main.myWriter.write("Student:\n");
+        Main.myWriter.write("NRP;Kelas;Nama\n");
+//        System.out.println("\n");
+//        System.out.println("Number of Student:"+students.size()+"/"+ timeSlot.room.kapasitas);
+//        System.out.println("Student:");
+//        System.out.println("NRP;Kelas;Nama");
         for(int i=0;i<students.size();i++){
-            System.out.println(students.get(i).id+";"+students.get(i).kelas+";"+students.get(i).nama);
+            Main.myWriter.write(students.get(i).id+";"+students.get(i).kelas+";"+students.get(i).nama+"\n");
+           // System.out.println(students.get(i).id+";"+students.get(i).kelas+";"+students.get(i).nama);
         }
-
-        System.out.println("\n");
+        Main.myWriter.write("\n");
+        //System.out.println("\n");
     }
 
 }

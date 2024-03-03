@@ -1,3 +1,5 @@
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.*;
 
@@ -13,15 +15,16 @@ public class Main {
     public static List<Cohort> cohort;
     public static Random r;
 
-    public static List<Integer> cannotMove;
 
+    public static FileWriter myWriter;
+    public static String path;
     public static double probabilitasEksplorasi;
 
     public static int iterasi;
 
     public static int jumlahStudent;
 
-    public static void main(String[] args) throws InterruptedException {
+    public static void main(String[] args) throws InterruptedException, IOException {
 
         Scanner sc = new Scanner(System.in);
         long startTime = System.currentTimeMillis();
@@ -33,7 +36,8 @@ public class Main {
 
         GetDataset input = new GetDataset();
 
-        String path = "/Users/igustiagungpremananda/IdeaProjects/LabTimetabling/";
+        path = "/Users/igustiagungpremananda/IdeaProjects/LabTimetabling/";
+        path= "C:/Users/igust/IdeaProjects/LabOptimize/";
 
         System.out.println("dataset ke?");
 
@@ -45,9 +49,6 @@ public class Main {
 
         int bestPenalty=penalty;
 
-        boolean feasible=false;
-
-       while(penalty>40) {
 
 
             room = new ArrayList<>();
@@ -147,29 +148,26 @@ public class Main {
 
 
            // findFeasible();
+
            feasibleOptimize(startTime);
-            penalty=calculateFitness(jumlahStudent);
 
-            if (bestPenalty > penalty) {
-                System.out.println("penalty:" + penalty + " best:" + bestPenalty);
-                bestPenalty = penalty;
-                Collections.sort(cohort);
-                printHasil();
+           int cekStudent=0;
+           for(int i=0;i<cohort.size();i++) {
+              cohort.get(i).useBest();
+              cekStudent+=cohort.get(i).students.size();
+           }
 
-
-            }
-        }
-
+           if(jumlahStudent!=cekStudent)System.exit(0);
+           student=new ArrayList<>();
+           teachingAssitants=new ArrayList<>();
 
 
+            penalty = calculateFitness(jumlahStudent);
 
 
+           System.out.println("penalty akhir:"+penalty);
 
 
-
-            //masuk optimasi
-
-//        }
 
 
         long endTime = System.currentTimeMillis();
@@ -184,6 +182,7 @@ public class Main {
 
 
 
+        Collections.sort(cohort);
 
         printHasil();
 
@@ -193,7 +192,7 @@ public class Main {
     }
 
     public static void feasibleOptimize(long startTime){
-        long duration = 7200000;
+        long duration = 72000;
 
 
 
@@ -204,7 +203,7 @@ public class Main {
         int index = 0;
         int indexTeachingAssistanse = 0;
         int indexStuck = 0;
-        int best = student.size() + teachingAssitants.size();
+
         boolean adaPerubahan = false;
         int bestSementara = 0;
         double penurun = 0.3;
@@ -242,7 +241,7 @@ public class Main {
                 if(penalty>=newPenalty || lahcList[iteasi%lahcList.length]>=newPenalty){
 
                     if(stuck>=1000){
-                        System.out.println("kena");
+                       // System.out.println("kena");
                     }
 
                     if(penalty>newPenalty)
@@ -320,14 +319,16 @@ public class Main {
 
                 if (bestPenalty > penalty) {
                     if (student.size() == 0 && teachingAssitants.size() == 0) {
-                        System.out.println("best feasible:" + penalty);
+                       // System.out.println("best feasible:" + penalty);
 
                         for(int i=0;i<cohort.size();i++){
                             cohort.get(i).setBest();
                         }
 
+
+                        bestPenalty = penalty;
                     }
-                    bestPenalty = penalty;
+
                 }
 
                // System.out.println("penalty:" + penalty + " best:" + bestPenalty + " sisa student:" + student.size() + " sisa teachingAssistance:" + teachingAssitants.size());
@@ -1007,12 +1008,12 @@ public class Main {
         return false;
     }
 
-    public static void printHasil() {
-
+    public static void printHasil() throws IOException {
+        myWriter = new FileWriter(path + "/Hasil/" + 2+".csv");
         for (int i = 0; i < cohort.size(); i++) {
             cohort.get(i).printHasil();
         }
-
+        myWriter.close();
 
     }
 
