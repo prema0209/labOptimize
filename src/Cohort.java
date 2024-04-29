@@ -203,13 +203,13 @@ public class Cohort implements Comparable<Cohort>{
         Main.myWriter.write("\n");
         Main.myWriter.write("Number of Student:"+students.size()+"/"+ timeSlot.room.kapasitas+"\n");
         Main.myWriter.write("Student:\n");
-        Main.myWriter.write("NRP;Kelas;Nama\n");
+        Main.myWriter.write("NRP;Nama;Kelas\n");
 //        System.out.println("\n");
 //        System.out.println("Number of Student:"+students.size()+"/"+ timeSlot.room.kapasitas);
 //        System.out.println("Student:");
 //        System.out.println("NRP;Kelas;Nama");
         for(int i=0;i<students.size();i++){
-            Main.myWriter.write(students.get(i).id+";"+students.get(i).kelas+";"+students.get(i).nama+"\n");
+            Main.myWriter.write(students.get(i).id+";"+students.get(i).nama+";"+students.get(i).kelas+"\n");
            // System.out.println(students.get(i).id+";"+students.get(i).kelas+";"+students.get(i).nama);
         }
         Main.myWriter.write("\n");

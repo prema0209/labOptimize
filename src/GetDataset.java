@@ -2,6 +2,7 @@
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.Arrays;
 
 public class GetDataset {
     public void readRoom(String path){
@@ -13,8 +14,10 @@ public class GetDataset {
             int index1=0;
             while ((line = br.readLine()) != null) {
 
+
                 if(index1>0){
                     String[] values = line.split(";"); // Asumsi bahwa pemisah antar kolom adalah koma
+                   // System.out.println(Arrays.toString(values));
                     boolean av[]=new boolean[20];
                     for(int i=4;i<values.length;i++){
                         av[i-4]=values[i].equals("1")?true:false;
