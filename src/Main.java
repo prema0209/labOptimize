@@ -64,7 +64,7 @@ public class Main {
 
         int ver2=ver;
 
-        for(int ik=0;ik<1;ik++) {
+        for(int ik=0;ik<3;ik++) {
             long startTime = System.currentTimeMillis();
             ver=ver2+(ik*10);
             System.out.println("ver:"+ver);
@@ -75,8 +75,8 @@ public class Main {
             bestFeasibleTime=0;
           //  cohort=new ArrayList<>();
 
-            input.readRoom(path + "Dataset/" + data + "/Room Timeslot v2.csv");
-            input.readStudent(path + "Dataset/" + data + "/Student Timeslot v2.csv");
+            input.readRoom(path + "Dataset/" + data + "/Room Timeslot.csv");
+            input.readStudent(path + "Dataset/" + data + "/Student Timeslot.csv");
             input.readTeachingAssistant(path + "Dataset/" + data + "/Teaching Assistant Timeslot.csv");
             //input.readName(path + "Dataset/" + data + "/cariKelas.csv");
 
@@ -149,14 +149,14 @@ public class Main {
 
 
 
-            feasibleOptimize(startTime);
+           // feasibleOptimize(startTime);
 
           // feasibleOptimizeSA(startTime);
 
          //   feasibleOptimizeLAHC(startTime);
 
 
-         //   feasibleOptimizeILSStandart(startTime);
+           feasibleOptimizeILSStandart(startTime);
 
             if(bestFeasibleTime>0){
                 int cekStudent = 0;
@@ -454,12 +454,17 @@ public class Main {
 
     }
 
+
+    public static List<Student> studentRollBackBest;
+    public static List<TeachingAssitant> teachingAssitantsRollBackBest;
+
+
     public static void feasibleOptimizeILSStandart(long startTime) throws IOException {
         long duration = 600000;
 
         duration=60000;
-//       duration=300000;
-//        duration=600000;
+    //   duration=300000;
+  //      duration=600000;
 
 
         int iterasi=0;
@@ -479,6 +484,7 @@ public class Main {
         boolean phase=true; //true=local search
         int stuck=0;
 
+        int newPenalty=penalty;
         while (System.currentTimeMillis() - startTime < duration) {
             iterasi++;
 
@@ -510,55 +516,38 @@ public class Main {
                 double x=Math.random();
                 // System.out.println("kenma");
                 if(x<0.25){
-                    moveCohort(Math.random()>0.1?true:false);
+                    moveCohort(phase);
 
                 }else if(x<0.5){
-                    swapCohort(Math.random()>0.1?true:false);
+                    swapCohort(phase);
 
                 }
                 else if(x<0.75){
-                    moveStudent(Math.random()>0.1?true:false);
+                    moveStudent(phase);
 
                 }
                 else{
-                    swapStudent(Math.random()>0.1?true:false);
+                    swapStudent(phase);
                 }
             }
 
-            int newPenalty=calculateFitness(jumlahStudent);
+
 
 
             boolean terima=false;
 
-            if(phase){
-                if(penalty<=newPenalty){
-                    stuck++;
 
+            if(phase){
+
+
+                if(newPenalty>=calculateFitness(jumlahStudent)){
+                    stuck++;
                 }
                 else {
                     stuck=0;
                 }
 
-                if(penalty>=newPenalty){
-                    terima=true;
-                    penalty=newPenalty;
-                    setRollback();
 
-                    if(teachingAssitants.size()==0 && student.size()==0){
-                        //System.out.println("feasible");
-                        if(best>penalty){
-                            best=penalty;
-                            bestFeasibleTime=(double)(System.currentTimeMillis() - startTime)/(1000);
-                          //  movement.add(penalty+";"+((double)(System.currentTimeMillis() - startTime)/1000));
-                            for(int i=0;i<cohort.size();i++){
-                                cohort.get(i).setBest();
-                            }
-                        }
-                    }
-
-                }else{
-                    useRollback();
-                }
 
                 if(stuck>1000){
                     phase=false;
@@ -566,33 +555,76 @@ public class Main {
                 }
 
             }else{
-                terima=true;
-               // System.out.println("perturbation phase:"+penalty);
                 phase=true;
-                penalty=newPenalty;
-                setRollback();
 
-                if(teachingAssitants.size()==0 && student.size()==0){
-                    //System.out.println("feasible");
-                    if(best>penalty){
-                        best=penalty;
-                        bestFeasibleTime=(double)(System.currentTimeMillis() - startTime)/(1000);
-                    //    movement.add(penalty+";"+((double)(System.currentTimeMillis() - startTime)/1000));
-                        for(int i=0;i<cohort.size();i++){
-                            cohort.get(i).setBest();
+//                if(teachingAssitants.size()==0 && student.size()==0){
+//                    //System.out.println("feasible");
+//                    if(best>penalty){
+//                        best=penalty;
+//                        bestFeasibleTime=(double)(System.currentTimeMillis() - startTime)/(1000);
+//                    //    movement.add(penalty+";"+((double)(System.currentTimeMillis() - startTime)/1000));
+//                        for(int i=0;i<cohort.size();i++){
+//                            cohort.get(i).setBest();
+//                        }
+//                    }
+//                }
+            }
+
+            newPenalty=calculateFitness(jumlahStudent);
+
+
+            if(!phase){
+
+                if(penalty>=newPenalty){// || Math.random()>pengurang){//|| lahcList[iteasi%lahcList.length]>=newPenalty){
+
+
+                    //System.out.println("keterima"+penalty+" "+newPenalty);
+                    penalty=newPenalty;
+
+
+
+                    setRollback();
+                    // System.out.println(teachingAssitants.size()+" "+student.size());
+
+                    if(teachingAssitants.size()==0 && student.size()==0){
+
+                        if(best>penalty) {
+                            bestFeasibleTime = (double) (System.currentTimeMillis() - startTime) / (1000);
+                            //    movement.add(penalty+";"+((double)(System.currentTimeMillis() - startTime)/1000));
+                            for(int i=0;i<cohort.size();i++){
+                                cohort.get(i).setBest();
+                            }
+                            best=penalty;
+
+
                         }
                     }
                 }
-            }
+                else {//if (Math.exp(((penalty -newPenalty)*duration )/ ((System.currentTimeMillis() - startTime))) >= Math.random())  {
+                    useRollback();
 
-            if(terima){
-                if((indexSkip%5000==0)){
-                    movement.add(newPenalty+";"+((double)(System.currentTimeMillis() - startTime)/1000));
-                }else{
+                    //System.out.println("ditolak"+penalty+" "+newPenalty);
 
+
+                    // System.out.println(teachingAssitants.size()+" "+student.size());
                 }
-                indexSkip++;
+
+                if(calculateFitness(jumlahStudent)!=penalty){
+                    System.exit(0);
+                }
+
+                movement.add(penalty+";"+((double)(System.currentTimeMillis() - startTime)/1000));
+
             }
+
+//            if(terima){
+//                if((indexSkip%5000==0)){
+//                    movement.add(newPenalty+";"+((double)(System.currentTimeMillis() - startTime)/1000));
+//                }else{
+//
+//                }
+//                indexSkip++;
+//            }
         }
 
 
