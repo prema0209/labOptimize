@@ -16,7 +16,7 @@ public class ReadSol {
 
         x++;
 
-        x=1;
+       // x=1;
 
         String path=filePath+"-"+x+".csv";
 

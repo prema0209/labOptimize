@@ -72,7 +72,7 @@ public class ILSOptimize {
         duration = 600000;//10 menit
         //duration = 2100000;
 
-        duration = 60000;//1 menit
+        //duration = 60000;//1 menit
 
 
         boolean phase = true;
