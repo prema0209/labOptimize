@@ -120,7 +120,7 @@ public class ILSOptimize {
 
             if (phase) {
 
-                    Main.moveCohort(false);
+                    Main.moveCohort(false, null);
 
 
                        newSol = Main.calculateFitness();
@@ -178,9 +178,9 @@ public class ILSOptimize {
                 for(int i=0;i<listCohort.size();i++){
 
                     if(Math.random()>0.5){
-                        Main.moveCohort(false);
+                        Main.moveCohort(false, listCohort.get(i));
                     }else{
-                        Main.swapCohort(false);
+                        Main.swapCohort(false, listCohort.get(i));
                     }
 
                     double newSoft = Main.calculateFitness();
@@ -296,10 +296,13 @@ public class ILSOptimize {
 
                 for(int i=0;i<listStu.size();i++){
 
+                    if(listStu.get(i)==null){
+                        System.out.println(listStu.get(i));
+                    }
                     if(Math.random()>0.5){
-                        Main.moveStudent(false);
+                        Main.moveStudent(false, listStu.get(i));
                     }else{
-                        Main.swapStudent(false);
+                        Main.swapStudent(false, listStu.get(i));
                     }
 
                     double newSoft = Main.calculateFitness();
@@ -623,9 +626,9 @@ public class ILSOptimize {
 
 
                if(Math.random()>0.5){
-                   Main.moveCohort(false);
+                   Main.moveCohort(false, listCohort.get(i));
                }else{
-                   Main.swapCohort(false);
+                   Main.swapCohort(false, listCohort.get(i));
                }
 
                    double newPen = Main.calculateFitness();
@@ -653,9 +656,9 @@ public class ILSOptimize {
            for(int i=0;i<listStu.size();i++){
 
                if(Math.random()>0.5){
-                   Main.moveStudent(false);
+                   Main.moveStudent(false, listStu.get(i) );
                }else{
-                   Main.swapStudent(false);
+                   Main.swapStudent(false, listStu.get(i));
                }
 
 

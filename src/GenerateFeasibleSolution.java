@@ -142,15 +142,15 @@ public class GenerateFeasibleSolution {
                         double x=Math.random();
 
                         if(x<0.25){
-                            a=Main.moveCohort(true);
+                            a=Main.moveCohort(true, null);
                         }else if(x<0.5){
-                            a=Main. swapCohort(true);
+                            a=Main. swapCohort(true, null);
                         }
                         else if(x<0.75){
-                            a=Main.  moveStudent(true);
+                            a=Main.  moveStudent(true, null);
                         }
                         else{
-                            a=Main.  swapStudent(true);
+                            a=Main.  swapStudent(true, null);
                         }
 
                         if(a){

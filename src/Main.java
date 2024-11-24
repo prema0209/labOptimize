@@ -280,7 +280,7 @@ public class Main {
             //System.out.println(cohort.get(i).teachingAssitants.size());
             if(cohort.get(i).teachingAssitants.size()<2){
 
-               // System.out.println("kena 5");
+                // System.out.println("kena 5");
                 return false;
             }
 
@@ -297,17 +297,7 @@ public class Main {
                     }
                 }
             }
-
-
-
-
         }
-
-
-
-
-
-
 
         return true;
     }
@@ -376,18 +366,18 @@ public class Main {
 
 
                 if(x<0.25){
-                    moveCohort(Math.random()>0.1?true:false);
+                    moveCohort(Math.random()>0.1?true:false, null);
 
                 }else if(x<0.5){
-                    swapCohort(Math.random()>0.1?true:false);
+                    swapCohort(Math.random()>0.1?true:false, null);
 
                 }
                 else if(x<0.75){
-                    moveStudent(Math.random()>0.1?true:false);
+                    moveStudent(Math.random()>0.1?true:false, null);
 
                 }
                 else{
-                    swapStudent(Math.random()>0.1?true:false);
+                    swapStudent(Math.random()>0.1?true:false, null);
 
                 }
 
@@ -497,18 +487,18 @@ public class Main {
 
 
                 if(x<0.25){
-                    moveCohort(Math.random()>0.1?true:false);
+                    moveCohort(Math.random()>0.1?true:false, null);
 
                 }else if(x<0.5){
-                    swapCohort(Math.random()>0.1?true:false);
+                    swapCohort(Math.random()>0.1?true:false, null);
 
                 }
                 else if(x<0.75){
-                   moveStudent(Math.random()>0.1?true:false);
+                   moveStudent(Math.random()>0.1?true:false, null);
 
                 }
                 else{
-                    swapStudent(Math.random()>0.1?true:false);
+                    swapStudent(Math.random()>0.1?true:false, null);
 
                 }
 
@@ -633,18 +623,18 @@ public class Main {
                 double x=Math.random();
                 // System.out.println("kenma");
                 if(x<0.25){
-                    moveCohort(phase);
+                    moveCohort(phase, null);
 
                 }else if(x<0.5){
-                    swapCohort(phase);
+                    swapCohort(phase, null);
 
                 }
                 else if(x<0.75){
-                    moveStudent(phase);
+                    moveStudent(phase, null);
 
                 }
                 else{
-                    swapStudent(phase);
+                    swapStudent(phase, null);
                 }
             }
 
@@ -937,15 +927,15 @@ public class Main {
                 double x=Math.random();
 
                 if(x<0.25){
-                    moveCohort(false);
+                    moveCohort(false, null);
                 }else if(x<0.5){
-                    swapCohort(false);
+                    swapCohort(false, null);
                 }
                 else if(x<0.75){
-                    moveStudent(false);
+                    moveStudent(false, null);
                 }
                 else{
-                    swapStudent(false);
+                    swapStudent(false, null);
                 }
 
 
@@ -1075,9 +1065,9 @@ public class Main {
 
                 double x=r.nextInt(2);
                 if(x==0){
-                    moveCohort(false);
+                    moveCohort(false, null);
                 }else if(x==1){
-                    swapCohort(false);
+                    swapCohort(false, null);
                 }
 
 
@@ -1125,14 +1115,14 @@ public class Main {
                     while(!a){
                         double x=r.nextInt(4);
                         if(x==0){
-                            a=moveCohort(true);
+                            a=moveCohort(true, null);
                         }else if(x==1){
-                            a= swapCohort(true);
+                            a= swapCohort(true, null);
                         }
                         else if(x==2){
-                            a= moveStudent(true);
+                            a= moveStudent(true, null);
                         }else{
-                            a=swapStudent(true);
+                            a=swapStudent(true, null);
                         }
                         if(a && !tt)break;
                         iter++;
@@ -1175,15 +1165,35 @@ public class Main {
     }
 
 
-    public static boolean swapStudent(boolean t){
+    public static boolean swapStudent(boolean t, Student ss){
         int x=calculateFitness();
-        Cohort c = cohort.get(r.nextInt(cohort.size()));
-
-        if(c.students.size()==0)return false;
-
-        Student s=c.students.get(r.nextInt(c.students.size()));
+        Cohort c=null;
 
 
+
+        Student s;
+
+
+        if(ss==null){
+            c = cohort.get(r.nextInt(cohort.size()));
+            if(c.students.size()==0)return false;
+            s=c.students.get(r.nextInt(c.students.size()));
+
+        }else {
+            s=ss;
+            List<Cohort> listC=new ArrayList<>(cohort);
+
+            Collections.sort(listC);
+
+            for(int i=0;i<listC.size();i++){
+                if(listC.get(i).students.contains(s)){
+                    c=listC.get(i);
+                    break;
+                }
+            }
+            if(c==null)return false;
+
+        }
         List<Cohort> listDestination=new ArrayList<>();
 
         for(int i=0;i<cohort.size();i++){
@@ -1247,13 +1257,36 @@ public class Main {
 
 
 
-    public static boolean moveStudent(boolean t){
+    public static boolean moveStudent(boolean t, Student ss){
         int x=calculateFitness();
-        Cohort c = cohort.get(r.nextInt(cohort.size()));
+        Cohort c=null;
 
-        if(c.students.size()==0)return false;
 
-        Student s=c.students.get(r.nextInt(c.students.size()));
+
+        Student s;
+
+
+        if(ss==null){
+            c = cohort.get(r.nextInt(cohort.size()));
+            if(c.students.size()==0)return false;
+            s=c.students.get(r.nextInt(c.students.size()));
+
+        }else {
+            s=ss;
+            List<Cohort> listC=new ArrayList<>(cohort);
+
+            Collections.sort(listC);
+
+            for(int i=0;i<listC.size();i++){
+                if(listC.get(i).students.contains(s)){
+                    c=listC.get(i);
+                    break;
+                }
+            }
+
+            if(c==null)return false;
+
+        }
 
 
         List<Cohort> listDestination=new ArrayList<>();
@@ -1302,11 +1335,6 @@ public class Main {
            }
            return false;
        }
-
-
-
-
-
     }
 
     public static void findFeasible(){
@@ -1400,10 +1428,10 @@ public class Main {
         if (phase) {
 
             if (Math.random() > 0.5) {
-                moveCohort(false);
+                moveCohort(false, null);
             } else {
 
-                swapCohort(false);
+                swapCohort(false, null);
             }
 
 
@@ -1445,9 +1473,9 @@ public class Main {
                 boolean a = false;
                 for (int i = 0; i < 100; i++) {
                     if (Math.random() > 0.5) {
-                        a = moveCohort(true);
+                        a = moveCohort(true, null);
                     } else {
-                        a = swapCohort(true);
+                        a = swapCohort(true, null);
                     }
                     if (a) {
                         // System.out.println("exit");
@@ -1618,10 +1646,18 @@ public class Main {
 
     }
 
-    public static boolean swapCohort(boolean t) {
+    public static boolean swapCohort(boolean t, Cohort cc) {
         boolean tt=student.size()==0 && teachingAssitants.size()==0?true:false;
 
-        Cohort c = cohort.get(r.nextInt(cohort.size()));
+        Cohort c ;
+        if(cc==null){
+            c= cohort.get(r.nextInt(cohort.size()));
+        }else{
+            c=cc;
+        }
+
+
+
         List<TimeSlot> ts = new ArrayList<>();
         List<Integer> numberConflict = new ArrayList<>();
 
@@ -1768,12 +1804,19 @@ public class Main {
 
     }
 
-    public static boolean moveCohort(boolean t) {
+    public static boolean moveCohort(boolean t, Cohort cc) {
 
         boolean tt=student.size()==0 && teachingAssitants.size()==0?true:false;
 
 
-        Cohort c = cohort.get(r.nextInt(cohort.size()));
+        Cohort c;
+
+        if(cc==null){
+            c= cohort.get(r.nextInt(cohort.size()));
+        }else{
+            c=cc;
+        }
+
 
         List<TimeSlot> ts = new ArrayList<>();
         List<Integer> numberConflict = new ArrayList<>();
