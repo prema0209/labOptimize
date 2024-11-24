@@ -25,15 +25,68 @@ public class Cohort implements Comparable<Cohort>{
 
     TimeSlot timeSlotBest;
 
+
+    List<Student> studentsCheckPoint;
+    List<TeachingAssitant> teachingAssitantsCheckPoint;
+
+    TimeSlot timeSlotCheckPoint;
+
     public Cohort(int i){
         id=i;
         students=new ArrayList<>();
         teachingAssitants=new ArrayList<>();
     }
 
+    public boolean cekTADouble(String a){
+        for(int i=0;i<teachingAssitants.size();i++){
+            if(teachingAssitants.get(i).nama.equals(a)){
+                return false;
+            }
+        }
+        return true;
+    }
+
     public void printJadwal(){
         System.out.println("Cohor:"+id+" "+timeSlot.timeSlotId+" "+timeSlot.room.nama);
     }
+
+
+    public void setCheckPoint(){
+        timeSlotCheckPoint=timeSlot;
+        studentsCheckPoint=new ArrayList<>();
+        teachingAssitantsCheckPoint=new ArrayList<>();
+
+        for(int i=0;i<students.size();i++){
+            studentsCheckPoint.add(students.get(i));
+        }
+        for(int i=0;i<teachingAssitants.size();i++){
+            teachingAssitantsCheckPoint.add(teachingAssitants.get(i));
+        }
+
+    }
+    public void useCheckPoint(){
+        timeSlot=timeSlotCheckPoint;
+        timeSlot.cohort=this;
+
+        students=new ArrayList<>();
+        teachingAssitants=new ArrayList<>();
+
+        for(int i=0;i<studentsCheckPoint.size();i++){
+            students.add(studentsCheckPoint.get(i));
+        }
+        for(int i=0;i<teachingAssitantsCheckPoint.size();i++){
+            teachingAssitants.add(teachingAssitantsCheckPoint.get(i));
+        }
+
+    }
+
+
+
+
+
+
+
+
 
     public void setRollback(){
         timeSlotRollback=timeSlot;
@@ -156,6 +209,102 @@ public class Cohort implements Comparable<Cohort>{
             System.out.println("salah");
             System.exit(0);
         }
+    }
+
+
+    public void printHasil3() throws IOException{
+
+        String x;
+
+        x= id +","+ timeSlot.timeSlotId+";"+timeSlot.room.id+",";
+
+        for(int i=0;i<teachingAssitants.size();i++){
+            x+=teachingAssitants.get(i).id+";";
+        //    System.out.println("kena");
+        }
+        x+=",";
+
+
+        for(int i=0;i<students.size();i++){
+            x+=students.get(i).id+";";
+        }
+
+        Main.myWriter.write(x+"\n");
+        //System.out.println("\n");
+
+
+
+
+
+    }
+
+    public void printHasil2() throws IOException {
+
+
+
+        Main.myWriter.write("\n");
+        //System.out.println("\n");
+
+        Main.myWriter.write("Exam Season "+(id+1)+"\n");
+        Main.myWriter.write("room:"+timeSlot.room.id+" "+timeSlot.room.nama+"\n");
+//        System.out.println("Cohort "+(id+1));
+//        System.out.println("room:"+timeSlot.room.id+" "+timeSlot.room.nama);
+
+        String hari="";
+
+        switch (timeSlot.timeSlotId/4){
+            case 0:
+                hari="Senin";
+                break;
+            case 1:
+                hari="Selasa";
+                break;
+            case 2:
+                hari="Rabu";
+                break;
+            case 3:
+                hari="Kamis";
+                break;
+            case 4:
+                hari="Jumat";
+                break;
+        }
+
+        Main.myWriter.write("Waktu:"+hari+" sesi "+(timeSlot.timeSlotId%4+1)+"\n\n");
+        // System.out.println("Waktu:"+hari+" sesi "+(timeSlot.timeSlotId%4+1));
+
+
+        //System.out.println("\n");
+
+        Main.myWriter.write("TeachingAssistant:"+"\n");
+        //System.out.println("TeachingAssistant:");
+        for(int i=0;i<teachingAssitants.size();i++){
+            //System.out.println(teachingAssitants.get(i).nama);
+            Main.myWriter.write(teachingAssitants.get(i).nama+"\n");
+        }
+        Main.myWriter.write("\n");
+        Main.myWriter.write("Number of Student:"+students.size()+"/"+ timeSlot.room.kapasitas+"\n");
+        Main.myWriter.write("Student:\n");
+        Main.myWriter.write("NRP;Nama;Kelas\n");
+//        System.out.println("\n");
+//        System.out.println("Number of Student:"+students.size()+"/"+ timeSlot.room.kapasitas);
+//        System.out.println("Student:");
+//        System.out.println("NRP;Kelas;Nama");
+
+
+        int kx= (int) Math.ceil((double)students.size()/10);
+
+       // System.out.println("kx:"+kx);
+
+        for(int i=0;i<students.size();i++){
+            if(i%kx==0){
+                Main.myWriter.write("\nBatch:"+((i/kx)+1)+"\n");
+            }
+            Main.myWriter.write(students.get(i).id+";"+students.get(i).nama+";"+students.get(i).kelas+"\n");
+            // System.out.println(students.get(i).id+";"+students.get(i).kelas+";"+students.get(i).nama);
+        }
+        Main.myWriter.write("\n");
+        //System.out.println("\n");
     }
 
     public void printHasil() throws IOException {

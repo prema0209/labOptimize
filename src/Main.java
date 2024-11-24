@@ -28,6 +28,14 @@ public class Main {
     public static double firstFeasibleTime;
     public static double bestFeasibleTime;
 
+    public static List<Student> studentRollBackBest;
+    public static List<TeachingAssitant> teachingAssitantsRollBackBest;
+
+
+    public static List<Student> studentCheckPoint;
+    public static List<TeachingAssitant> teachingAssitantsCheckPoint;
+
+
 
     public static void main(String[] args) throws InterruptedException, IOException {
 
@@ -64,8 +72,8 @@ public class Main {
 
         int ver2=ver;
 
-        for(int ik=0;ik<3;ik++) {
-            long startTime = System.currentTimeMillis();
+        for(int ik=0;ik<1;ik++) {
+
             ver=ver2+(ik*10);
             System.out.println("ver:"+ver);
             room = new ArrayList<>();
@@ -113,27 +121,19 @@ public class Main {
             }
 
 
+
 //            for (int i = 0; i < timeSlot.size(); i++) {
 //                System.out.println(timeSlot.get(i).room.nama + " " + timeSlot.get(i).timeSlotId);
 //            }
 
 
-            Collections.shuffle(timeSlot);
+
 
 
             cohort = new ArrayList<>();
 
             for (int i = 0; i < 6; i++) {
                 cohort.add(new Cohort(i));
-                while (true) {
-                    int x = r.nextInt(timeSlot.size());
-
-                    if (timeSlot.get(x).cohort == null) {
-                        timeSlot.get(x).cohort = cohort.get(i);
-                        cohort.get(i).timeSlot = timeSlot.get(x);
-                        break;
-                    }
-                }
             }
 
 
@@ -149,30 +149,77 @@ public class Main {
 
 
 
-           // feasibleOptimize(startTime);
+
+            System.out.println("1. Fest 2. Opt:");
+            int ss=sc.nextInt();
+
+            long startTime = System.currentTimeMillis();
+            if(ss==1){
+                Collections.shuffle(timeSlot);
+                for (int i = 0; i < 6; i++) {
+
+                    while (true) {
+                        int x = r.nextInt(timeSlot.size());
+
+                        if (timeSlot.get(x).cohort == null) {
+                            timeSlot.get(x).cohort = cohort.get(i);
+                            cohort.get(i).timeSlot = timeSlot.get(x);
+                            break;
+                        }
+                    }
+                }
+
+                GenerateFeasibleSolution fes=new GenerateFeasibleSolution();
+                fes.createFeasibleSolution();
+
+
+            }else{
+
+                ReadSol readSol=new ReadSol();
+
+                readSol.readSOl(path+"Hasil/Solusi Awal/"+data);
+
+//                teachingAssitants=new ArrayList<>();
+//                student=new ArrayList<>();
+
+
+                ILSOptimize op=new ILSOptimize();
+
+                op.optimize();
+
+            }
+
+
+
+
+            //feasibleOptimize(startTime);
 
           // feasibleOptimizeSA(startTime);
 
          //   feasibleOptimizeLAHC(startTime);
 
 
-           feasibleOptimizeILSStandart(startTime);
+           //feasibleOptimizeILSStandart(startTime);
 
-            if(bestFeasibleTime>0){
-                int cekStudent = 0;
-                for (int i = 0; i < cohort.size(); i++) {
-                    cohort.get(i).useBest();
-                    cekStudent += cohort.get(i).students.size();
-                }
+//            if(bestFeasibleTime>0){
+//                int cekStudent = 0;
+//                for (int i = 0; i < cohort.size(); i++) {
+//                    cohort.get(i).useBest();
+//                    cekStudent += cohort.get(i).students.size();
+//                }
+//
+//                if (jumlahStudent != cekStudent) System.exit(0);
+//                student = new ArrayList<>();
+//                teachingAssitants = new ArrayList<>();
+//            }else {
+//                System.out.println("no feasible solution");
+//            }
 
-                if (jumlahStudent != cekStudent) System.exit(0);
-                student = new ArrayList<>();
-                teachingAssitants = new ArrayList<>();
-            }else {
-                System.out.println("no feasible solution");
-            }
 
-            penalty = calculateFitness(jumlahStudent);
+            System.out.println("feasible:"+cekFeasible());
+            penalty = calculateFitness();
+
+            System.out.println(student.size()+" "+teachingAssitants.size());
 
 
             System.out.println("penalty akhir:" + penalty);
@@ -190,10 +237,82 @@ public class Main {
 
             printHasil(data, penalty, runtime, ver);
 
+            printHasil2(data, penalty, runtime, ver);
+
         }
         //System.out.println(student.size());
 
     }
+
+
+
+    public static boolean cekFeasible(){
+        List<Student> stu=new ArrayList<>();
+        List<TeachingAssitant> tas=new ArrayList<>();
+        List<TimeSlot> ts=new ArrayList<>();
+
+        for(int i=0;i<cohort.size();i++){
+            if(ts.contains(cohort.get(i).timeSlot)){
+                System.out.println("kena 1");
+                return false;
+            }else{
+                ts.add(cohort.get(i).timeSlot);
+            }
+
+            if(cohort.get(i).students.size()>cohort.get(i).timeSlot.room.kapasitas){//check kapasity const
+                System.out.println("kena 2");
+                return false;
+            }
+
+            for(int j=0;j<cohort.get(i).students.size();j++){//check one student one cohort
+                if(stu.contains(cohort.get(i).students.get(j))){
+                    System.out.println("kena 3");
+                    return false;
+                }else{
+                    stu.add(cohort.get(i).students.get(j));
+                    if(!cohort.get(i).students.get(j).cekAvail(cohort.get(i).timeSlot.timeSlotId)){//check avail timeslot
+                        System.out.println("kena 4");
+                        return false;
+                    }
+                }
+
+            }
+            //System.out.println(cohort.get(i).teachingAssitants.size());
+            if(cohort.get(i).teachingAssitants.size()<2){
+
+               // System.out.println("kena 5");
+                return false;
+            }
+
+            for(int j=0;j<cohort.get(i).teachingAssitants.size();j++){
+                if(tas.contains(cohort.get(i).teachingAssitants.get(j))){
+                    System.out.println("kena 6");
+                    return false;
+                }
+                else{
+                    tas.add(cohort.get(i).teachingAssitants.get(j));
+                    if(!cohort.get(i).teachingAssitants.get(j).cekAvail(cohort.get(i).timeSlot.timeSlotId)){
+                        System.out.println("kena 7");
+                        return false;
+                    }
+                }
+            }
+
+
+
+
+        }
+
+
+
+
+
+
+
+        return true;
+    }
+
+
     public static void feasibleOptimizeLAHC(long startTime) throws IOException {
         long duration = 600000;
 
@@ -206,7 +325,7 @@ public class Main {
 
 
 
-        int penalty=calculateFitness(jumlahStudent);
+        int penalty=calculateFitness();
         int best=penalty;
         int[] lahcList;
           lahcList=new int[2000000];
@@ -275,7 +394,7 @@ public class Main {
 
             }
 
-            int newPenalty=calculateFitness(jumlahStudent);
+            int newPenalty=calculateFitness();
 
 
             if(penalty>=newPenalty || lahcList[iterasi%lahcList.length]>=newPenalty){
@@ -337,7 +456,7 @@ public class Main {
 
 
 
-        int penalty=calculateFitness(jumlahStudent);
+        int penalty=calculateFitness();
         int best=penalty;
 
         int indexSkip=0;
@@ -396,7 +515,7 @@ public class Main {
 
             }
 
-            int newPenalty=calculateFitness(jumlahStudent);
+            int newPenalty=calculateFitness();
 
             double remaining=(System.currentTimeMillis() - startTime);
 
@@ -455,8 +574,6 @@ public class Main {
     }
 
 
-    public static List<Student> studentRollBackBest;
-    public static List<TeachingAssitant> teachingAssitantsRollBackBest;
 
 
     public static void feasibleOptimizeILSStandart(long startTime) throws IOException {
@@ -471,7 +588,7 @@ public class Main {
 
 
 
-        int penalty=calculateFitness(jumlahStudent);
+        int penalty=calculateFitness();
         int best=penalty;
 
 
@@ -540,7 +657,7 @@ public class Main {
             if(phase){
 
 
-                if(newPenalty>=calculateFitness(jumlahStudent)){
+                if(newPenalty>=calculateFitness()){
                     stuck++;
                 }
                 else {
@@ -570,7 +687,7 @@ public class Main {
 //                }
             }
 
-            newPenalty=calculateFitness(jumlahStudent);
+            newPenalty=calculateFitness();
 
 
             if(!phase){
@@ -609,7 +726,7 @@ public class Main {
                     // System.out.println(teachingAssitants.size()+" "+student.size());
                 }
 
-                if(calculateFitness(jumlahStudent)!=penalty){
+                if(calculateFitness()!=penalty){
                     System.exit(0);
                 }
 
@@ -669,6 +786,63 @@ public class Main {
         }
     }
 
+    public static void useCheckPoint(){
+        for(int i=0;i<timeSlot.size();i++){
+            timeSlot.get(i).cohort=null;
+        }
+        for(int i=0;i<cohort.size();i++){
+            cohort.get(i).useCheckPoint();
+        }
+
+        student=new ArrayList<>();
+        teachingAssitants=new ArrayList<>();
+
+        for(int i=0;i<studentCheckPoint.size();i++){
+            student.add(studentCheckPoint.get(i));
+        }
+        for(int i=0;i<teachingAssitantsCheckPoint.size();i++){
+            teachingAssitants.add(teachingAssitantsCheckPoint.get(i));
+        }
+    }
+
+    public static void setCheckPoint(){
+        for(int i=0;i<cohort.size();i++){
+            cohort.get(i).setCheckPoint();
+        }
+
+
+        studentCheckPoint=new ArrayList<>();
+        for(int i=0;i<student.size();i++){
+            studentCheckPoint.add(student.get(i));
+        }
+
+        teachingAssitantsCheckPoint=new ArrayList<>();
+        for(int i=0;i<teachingAssitants.size();i++){
+            teachingAssitantsCheckPoint.add(teachingAssitants.get(i));
+        }
+    }
+
+    public static void setBest(){
+
+        for(int i=0;i<cohort.size();i++){
+            cohort.get(i).setBest();
+        }
+    }
+
+
+    public static void useBest(){
+        for(int i=0;i<timeSlot.size();i++){
+            timeSlot.get(i).cohort=null;
+        }
+        for(int i=0;i<cohort.size();i++){
+            cohort.get(i).useBest();
+        }
+
+        student=new ArrayList<>();
+        teachingAssitants=new ArrayList<>();
+
+
+    }
 
     public static List<Student> studentRollBack;
     public static List<TeachingAssitant> teachingAssitantsRollBack;
@@ -687,7 +861,8 @@ public class Main {
         //duration=10000;
         duration=60000;
        // duration=300000;
-        duration=600000;
+        //duration=600000;
+        //duration=600000;
 
          //threshold=1.1;
 
@@ -704,7 +879,7 @@ public class Main {
         int jumlahStudent=student.size();
 
 
-        int penalty=calculateFitness(jumlahStudent);
+        int penalty=calculateFitness();
 
 
         int bestPenalty=penalty;
@@ -775,7 +950,7 @@ public class Main {
 
 
             }
-            int newpen=calculateFitness(jumlahStudent);
+            int newpen=calculateFitness();
             int selisih=penAwal-newpen>=0?penAwal-newpen:newpen-penAwal;
 
             if((indexSkip%10000==0)){
@@ -813,7 +988,7 @@ public class Main {
 
             if(phase){
                 iteasi++;
-                int newPenalty=calculateFitness(jumlahStudent);
+                int newPenalty=calculateFitness();
                 //stuck++;
 
                 if((indexSkip%1000==0)){
@@ -916,7 +1091,7 @@ public class Main {
                 index = 0;//System.out.println("Jumlah Exam Tidak Terjadwal Akhr:"+Main.exams.size());
                 indexTeachingAssistanse = 0;
                 adaPerubahan = false;
-                bestSementara = calculateFitness(jumlahStudent);
+                bestSementara = calculateFitness();
 
             } else {
                 boolean perubahan = false;
@@ -967,10 +1142,10 @@ public class Main {
 
                     //move student and swap student
 
-                    if(calculateFitness(jumlahStudent)>=bestSementara){
+                    if(calculateFitness()>=bestSementara){
                         phase = true;
                     }else{
-                        bestSementara = calculateFitness(jumlahStudent);
+                        bestSementara = calculateFitness();
                     }
 
 
@@ -1001,7 +1176,7 @@ public class Main {
 
 
     public static boolean swapStudent(boolean t){
-        int x=calculateFitness(jumlahStudent);
+        int x=calculateFitness();
         Cohort c = cohort.get(r.nextInt(cohort.size()));
 
         if(c.students.size()==0)return false;
@@ -1049,7 +1224,7 @@ public class Main {
         destination.students.remove(swap);
         c.students.add(swap);
 
-        int xy=calculateFitness(jumlahStudent);
+        int xy=calculateFitness();
 
         if(xy<x || !t){
 
@@ -1061,7 +1236,7 @@ public class Main {
             destination.students.add(swap);
             c.students.remove(swap);
 
-            if(calculateFitness(jumlahStudent)!=x){
+            if(calculateFitness()!=x){
                 System.exit(0);
             }
             return false;
@@ -1073,7 +1248,7 @@ public class Main {
 
 
     public static boolean moveStudent(boolean t){
-        int x=calculateFitness(jumlahStudent);
+        int x=calculateFitness();
         Cohort c = cohort.get(r.nextInt(cohort.size()));
 
         if(c.students.size()==0)return false;
@@ -1115,14 +1290,14 @@ public class Main {
         c.students.remove(s);
         destination.students.add(s);
 
-        int xy=calculateFitness(jumlahStudent);
+        int xy=calculateFitness();
 
        if(xy<x || !t){
            return true;
        }else{
            c.students.add(s);
            destination.students.remove(s);
-           if(calculateFitness(jumlahStudent)!=x){
+           if(calculateFitness()!=x){
                System.exit(0);
            }
            return false;
@@ -1311,7 +1486,8 @@ public class Main {
 
 }
 
-    public static int calculateFitness(int jumlahStudent){
+    public static int calculateFitness(){
+
 
         int penalty=0;
         double averageStudent=jumlahStudent/6;
@@ -1375,15 +1551,38 @@ public class Main {
             }
         }
 
-        for (int j = 0; j < cohort.size(); j++) {
-            if (teachingAssitants.get(i).cekAvail(cohort.get(j).timeSlot.timeSlotId)) {
-                if (cohort.get(j).teachingAssitants.size() < 2 || t) {
+        if(!t) {
+            for (int j = 0; j < cohort.size(); j++) {
+                if (teachingAssitants.get(i).cekAvail(cohort.get(j).timeSlot.timeSlotId)) {
+                    if (cohort.get(j).teachingAssitants.size() < 2) {
 
-                    cohort.get(j).teachingAssitants.add(teachingAssitants.get(i));
-                    teachingAssitants.remove(i);
-                    return true;
+                        //if(cohort.get(j).cekTADouble(teachingAssitants.get(i).nama)) {
+
+                        cohort.get(j).teachingAssitants.add(teachingAssitants.get(i));
+                        teachingAssitants.remove(i);
+                        return true;
+                        // }
+                    }
                 }
             }
+        }
+        else{
+           // System.out.println("kenna");
+            for (int j = 0; j < cohort.size(); j++) {
+                if (teachingAssitants.get(i).cekAvail(cohort.get(j).timeSlot.timeSlotId)) {
+
+
+                        //if(cohort.get(j).cekTADouble(teachingAssitants.get(i).nama)) {
+
+                        cohort.get(j).teachingAssitants.add(teachingAssitants.get(i));
+                        teachingAssitants.remove(i);
+                        return true;
+                        // }
+                    }
+
+            }
+
+
         }
 
         return false;
@@ -1476,7 +1675,7 @@ public class Main {
 
 
                 int x=0;
-                if(tt)x=calculateFitness(jumlahStudent);
+                if(tt)x=calculateFitness();
 
                 TimeSlot terpilih = combined.get(r.nextInt(xx + 1)).getKey();
                 TimeSlot terpilih2 = c.timeSlot;
@@ -1629,7 +1828,7 @@ public class Main {
 
                 int prevPen=0;
 
-                if(tt)prevPen=calculateFitness(jumlahStudent);
+                if(tt)prevPen=calculateFitness();
 
                 c.timeSlot.cohort = null;
                 c.timeSlot = terpilih;
@@ -1690,15 +1889,27 @@ public class Main {
     public static void printHasil(int data, int pen, double dur, int ver) throws IOException {
 
 
-        myWriter = new FileWriter(path + "/Hasil/" + data+"-"+ver+".csv");
+        myWriter = new FileWriter(path + "/Hasil/" + data+"-"+ver+"_readable.csv");
         Main.myWriter.write("Penalty:"+pen+", duration:"+dur+"\n\n");
         Main.myWriter.write("first feasible time:"+firstFeasibleTime+", best feasible time:"+bestFeasibleTime+"\n\n");
         for (int i = 0; i < cohort.size(); i++) {
-            cohort.get(i).printHasil();
+            cohort.get(i).printHasil2();
         }
         myWriter.close();
 
     }
+
+    public static void printHasil2(int data, int pen, double dur, int ver) throws IOException {
+
+
+        myWriter = new FileWriter(path + "/Hasil/" + data+"-"+ver+".csv");
+          for (int i = 0; i < cohort.size(); i++) {
+            cohort.get(i).printHasil3();
+        }
+        myWriter.close();
+
+    }
+
 
     public static void printMovement(List<String> data) throws IOException {
 
