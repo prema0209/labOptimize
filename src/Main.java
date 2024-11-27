@@ -183,9 +183,13 @@ public class Main {
 //                student=new ArrayList<>();
 
 
-                ILSOptimize op=new ILSOptimize();
+//                ILSOptimize op=new ILSOptimize();
+//
+//                op.optimize();
+//
+                LAHC lahc=new LAHC();
 
-                op.optimize();
+                lahc.optimize();
 
             }
 

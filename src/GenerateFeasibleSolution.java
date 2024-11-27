@@ -24,8 +24,7 @@ public class GenerateFeasibleSolution {
         int indexStuckGlobal=0;
         int bestSolution2 =Main.student.size()+Main.teachingAssitants.size();
 
-
-
+        List<String> catatan=new ArrayList<>();
 
         while (Main.student.size()>0 || Main.teachingAssitants.size()>0){
 
@@ -69,7 +68,7 @@ public class GenerateFeasibleSolution {
             if(phase){
                 //System.out.println(iterasi+";"+(Main.student.size()+Main.teachingAssitants.size()));
                 //System.out.println("Jumlah Exam Tidak Terjadwal Awal:"+Main.exams.size());
-
+                catatan.add(""+(Main.student.size()+Main.teachingAssitants.size()));
                 double x=Math.random();
 
 
@@ -188,6 +187,10 @@ public class GenerateFeasibleSolution {
                 }
             }
         }
+        for(int i=0;i<catatan.size();i++){
+            System.out.println(catatan.get(i));
+        }
+        System.out.println(catatan.size());
     }
 
 

@@ -23,7 +23,7 @@ public class ILSOptimize {
      List<Student> listStu;
      List<TeachingAssitant> listTa;
 
-
+    List<String> catatan;
 
 
      int moveSelected;
@@ -40,6 +40,7 @@ public class ILSOptimize {
     public void optimize(){
 
         r=new Random();
+        catatan=new ArrayList<>();
 
         listCohort=new ArrayList<>(Main.cohort);
         listStu=new ArrayList<>(Main.student);
@@ -150,6 +151,7 @@ public class ILSOptimize {
 
             } else {
 
+                catatan.add((int)softAwal+";"+(int)newSol);
                 if(listSelisih.size()>0){
                     if(softAwal-listSelisih.get(0)>newSol){
                         softAwal=softAwal-listSelisih.get(0);
@@ -344,9 +346,11 @@ public class ILSOptimize {
 
                     if (listSelisih.size() == 0) {
                         movaAceeptancePhase = true;
+
                            if (localBest < bestSoftConstraint) {
                           //  System.out.println("lebih kecil local best:..............................................................");
                         }
+                           break;
                     } else {
                         //  System.out.println(improveLocalBest);
                         if(improveLocalBest){
@@ -554,7 +558,9 @@ public class ILSOptimize {
 //                }
 
 
+               // catatan.add(""+currentSoftConstraint);
             }
+           // if(catatan.size()>200)break;
         }
 
 
@@ -567,6 +573,11 @@ public class ILSOptimize {
 
         currentSoftConstraint=Main.calculateFitness();
         System.out.println("hasil :"+currentSoftConstraint);
+
+        for(int i=0;i<catatan.size();i++){
+            System.out.println(catatan.get(i));
+        }
+        System.out.println(catatan.size());
 
     }
 
